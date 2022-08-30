@@ -5,48 +5,52 @@ _Copy this recipe template to design and create two related database tables from
 ## 1. Extract nouns from the user stories or specification
 
 ```
-# EXAMPLE USER STORY:
-# (analyse only the relevant part - here the final line).
+# USER STORY:
 
-As a music lover,
-So I can organise my records,
-I want to keep a list of albums' titles.
+As a social network user,
+So I can have my information registered,
+I'd like to have a user account with my email address.
 
-As a music lover,
-So I can organise my records,
-I want to keep a list of albums' release years.
+As a social network user,
+So I can have my information registered,
+I'd like to have a user account with my username.
 
-As a music lover,
-So I can organise my records,
-I want to keep a list of artists' names.
+As a social network user,
+So I can write on my timeline,
+I'd like to create posts associated with my user account.
 
-As a music lover,
-So I can organise my records,
-I want to know each album's artist.
+As a social network user,
+So I can write on my timeline,
+I'd like each of my posts to have a title and a content.
+
+As a social network user,
+So I can know who reads my posts,
+I'd like each of my posts to have a number of views.
 ```
 
 ```
 Nouns:
 
-album, title, release year, artist, name
+user: email address, username
+post: title, content, views
 ```
 
 ## 2. Infer the Table Name and Columns
 
 Put the different nouns in this table. Replace the example with your own nouns.
 
-| Record                | Properties          |
-| --------------------- | ------------------  |
-| album                 | title, release year
-| artist                | name
+| Record | Properties              |
+|--------|-------------------------|
+| User   | email_address, username |
+| Post   | title, content, views   |
 
-1. Name of the first table (always plural): `albums` 
+1. Name of the first table (always plural): `users` 
 
-    Column names: `title`, `release_year`
+    Column names: `email_address`, `username`
 
-2. Name of the second table (always plural): `artists` 
+2. Name of the second table (always plural): `posts` 
 
-    Column names: `name`
+    Column names: `title`, `content`, `views`
 
 ## 3. Decide the column types.
 
