@@ -63,14 +63,16 @@ Remember to **always** have the primary key `id` as a first column. Its type wil
 ```
 # EXAMPLE:
 
-Table: albums
+Table: users
+id: SERIAL
+email_address: text
+username: text
+
+Table: posts
 id: SERIAL
 title: text
-release_year: int
-
-Table: artists
-id: SERIAL
-name: text
+content: text
+views: int
 ```
 
 ## 4. Decide on The Tables Relationship
@@ -93,14 +95,14 @@ Replace the relevant bits in this example with your own:
 ```
 # EXAMPLE
 
-1. Can one artist have many albums? YES
-2. Can one album have many artists? NO
+1. Can one user have many posts? YES
+2. Can one post have many users? NO
 
 -> Therefore,
--> An artist HAS MANY albums
--> An album BELONGS TO an artist
+-> A user HAS MANY posts
+-> A post BELONGS TO a user
 
--> Therefore, the foreign key is on the albums table.
+-> Therefore, the foreign key is on the posts table.
 ```
 
 *If you can answer YES to the two questions, you'll probably have to implement a Many-to-Many relationship, which is more complex and needs a third table (called a join table).*
@@ -109,25 +111,27 @@ Replace the relevant bits in this example with your own:
 
 ```sql
 -- EXAMPLE
--- file: albums_table.sql
+-- file: social_network.sql
 
 -- Replace the table name, columm names and types.
 
 -- Create the table without the foreign key first.
-CREATE TABLE artists (
+CREATE TABLE users (
   id SERIAL PRIMARY KEY,
-  name text,
+  email_address text,
+  username text;
 );
 
 -- Then the table with the foreign key first.
-CREATE TABLE albums (
+CREATE TABLE posts (
   id SERIAL PRIMARY KEY,
   title text,
-  release_year int,
+  content text,
+  views int,
 -- The foreign key name is always {other_table_singular}_id
-  artist_id int,
-  constraint fk_artist foreign key(artist_id)
-    references artists(id)
+  user_id int,
+  constraint fk_user foreign key(user_id)
+    references users(id)
     on delete cascade
 );
 
