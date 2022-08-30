@@ -1,6 +1,4 @@
-# Posts Model and Repository Classes Design Recipe
-
-_Copy this recipe template to design and implement Model and Repository classes for a database table._
+# Users Model and Repository Classes Design Recipe
 
 ## 1. Design and create the Table
 
@@ -13,10 +11,10 @@ Otherwise, [follow this recipe to design and create the SQL schema for your tabl
 ```
 # EXAMPLE
 
-Table: students
+Table: users
 
 Columns:
-id | name | cohort_name
+id | email_address | username
 ```
 
 ## 2. Create Test SQL seeds
@@ -26,28 +24,26 @@ Your tests will depend on data stored in PostgreSQL to run.
 If seed data is provided (or you already created it), you can skip this step.
 
 ```sql
--- EXAMPLE
--- (file: spec/seeds_{table_name}.sql)
-
 -- Write your SQL seed here. 
 
 -- First, you'd need to truncate the table - this is so our table is emptied between each test run,
 -- so we can start with a fresh state.
 -- (RESTART IDENTITY resets the primary key)
 
-TRUNCATE TABLE students RESTART IDENTITY; -- replace with your own table name.
+TRUNCATE TABLE users RESTART IDENTITY; -- replace with your own table name.
 
 -- Below this line there should only be `INSERT` statements.
 -- Replace these statements with your own seed data.
 
-INSERT INTO students (name, cohort_name) VALUES ('David', 'April 2022');
-INSERT INTO students (name, cohort_name) VALUES ('Anna', 'May 2022');
+INSERT INTO users (email_address, username)
+  VALUES  ('user1@email.com', 'user1'),
+          ('user2@email.com', 'user2');
 ```
 
 Run this SQL file on the database to truncate (empty) the table, and insert the seed data. Be mindful of the fact any existing records in the table will be deleted.
 
 ```bash
-psql -h 127.0.0.1 your_database_name < seeds_{table_name}.sql
+psql -h 127.0.0.1 social_network_test < seeds_users.sql
 ```
 
 ## 3. Define the class names
@@ -55,17 +51,14 @@ psql -h 127.0.0.1 your_database_name < seeds_{table_name}.sql
 Usually, the Model class name will be the capitalised table name (single instead of plural). The same name is then suffixed by `Repository` for the Repository class name.
 
 ```ruby
-# EXAMPLE
-# Table name: students
+# Table name: users
 
 # Model class
-# (in lib/student.rb)
-class Student
+class User
 end
 
 # Repository class
-# (in lib/student_repository.rb)
-class StudentRepository
+class UserRepository
 end
 ```
 
@@ -74,17 +67,36 @@ end
 Define the attributes of your Model class. You can usually map the table columns to the attributes of the class, including primary and foreign keys.
 
 ```ruby
-# EXAMPLE
-# Table name: students
+# Table name: users
 
 # Model class
-# (in lib/student.rb)
-
-class Student
+class User
 
   # Replace the attributes by your own columns.
-  attr_accessor :id, :name, :cohort_name
+  attr_accessor :id, :email_address, :username
 end
+
+# user1 = User.new
+# user1.email_address # => return @email_address
+
+# user1.email_address = "new@email.com" # => return @email_address
+# user1.email_address # =>  new@email.com
+
+# line 72 - 77 is a shorthand for
+
+# class User
+#   def initialize(email_address)
+#     @email_address = email_address
+#   end
+
+#   def email_address
+#     return @email_address
+#   end
+
+#   def set_email_address(new_address)
+#     @email_address = new_address
+#   end
+# end
 
 # The keyword attr_accessor is a special Ruby feature
 # which allows us to set and get attributes on an object,
@@ -104,21 +116,18 @@ Your Repository class will need to implement methods for each "read" or "write" 
 Using comments, define the method signatures (arguments and return value) and what they do - write up the SQL queries that will be used by each method.
 
 ```ruby
-# EXAMPLE
 # Table name: students
 
 # Repository class
-# (in lib/student_repository.rb)
-
-class StudentRepository
+class UserRepository
 
   # Selecting all records
   # No arguments
   def all
     # Executes the SQL query:
-    # SELECT id, name, cohort_name FROM students;
+    # SELECT id, email_address, username FROM users;
 
-    # Returns an array of Student objects.
+    # Returns an array of User objects.
   end
 
   # Gets a single record by its ID
@@ -155,19 +164,19 @@ These examples will later be encoded as RSpec tests.
 # 1
 # Get all students
 
-repo = StudentRepository.new
+repo = UserRepository.new
 
-students = repo.all
+users = repo.all # Returns an array of User objects
 
-students.length # =>  2
+users.length # =>  2
 
-students[0].id # =>  1
-students[0].name # =>  'David'
-students[0].cohort_name # =>  'April 2022'
+users[0].id # =>  1
+users[0].email_address # =>  'user1@email.com'
+users[0].username # =>  'user1'
 
-students[1].id # =>  2
-students[1].name # =>  'Anna'
-students[1].cohort_name # =>  'May 2022'
+users[1].id # =>  2
+users[0].email_address # =>  'user2@email.com'
+users[0].username # =>  'user2'
 
 # 2
 # Get a single student
@@ -192,19 +201,15 @@ Running the SQL code present in the seed file will empty the table and re-insert
 This is so you get a fresh table contents every time you run the test suite.
 
 ```ruby
-# EXAMPLE
-
-# file: spec/student_repository_spec.rb
-
-def reset_students_table
-  seed_sql = File.read('spec/seeds_students.sql')
-  connection = PG.connect({ host: '127.0.0.1', dbname: 'students' })
+def reset_users_table
+  seed_sql = File.read('spec/seeds.sql')
+  connection = PG.connect({ host: '127.0.0.1', dbname: 'social_network_test' })
   connection.exec(seed_sql)
 end
 
-describe StudentRepository do
+describe UserRepository do
   before(:each) do 
-    reset_students_table
+    reset_users_table
   end
 
   # (your tests will go here).
